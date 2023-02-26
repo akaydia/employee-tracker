@@ -1,0 +1,23 @@
+{
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "\"Challenge 12, given a command-line application that accepts user input to have the ability to view and manage departments, roles and employees in a company to organise and plan a business\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akaydia/employee-tracker.git"
+  },
+  "author": "Ricky Nguyen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/akaydia/employee-tracker/issues"
+  },
+  "homepage": "https://github.com/akaydia/employee-tracker#readme",
+  "dependencies": {
+    "inquirer": "^9.1.4",
+    "mysql2": "^3.1.2"
+  }
+}
