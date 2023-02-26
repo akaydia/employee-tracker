@@ -1,17 +1,46 @@
-const mysql = require('mysql2');
-require('dotenv').config();
+const db = require('./utils/database');
+const promptUser = require('./utils/prompts');
 
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-});
+const {
+    viewDepartments,
+    viewRoles,
+    viewEmployees,
+    addDepartment,
+    addRole,
+    addEmployee,
+} = require('./utils/database');
 
-db.connect((err) => {
-  if (err) {
-    console.error('error connecting to database: ' + err.stack);
-    return;
-  }
-  console.log('connected to database as id ' + db.threadId);
-});
+function run() {
+    promptUser()
+      .then(answer => {
+        switch (answer.action) {
+          case 'View all departments':
+            viewDepartments();
+            break;
+          case 'View all roles':
+            viewRoles();
+            break;
+          case 'View all employees':
+            viewEmployees();
+            break;
+          case 'Add a department':
+            addDepartment();
+            break;
+          case 'Add a role':
+            addRole();
+            break;
+          case 'Add an employee':
+            addEmployee();
+            break;
+          case 'Update an employee role':
+            updateEmployeeRole();
+            break;
+          case 'Exit':
+            console.log('Goodbye!');
+            db.end();
+            return;
+        } // switch()
+        run();
+      }) // then()
+      .catch(err => console.log(err));
+  } // run()
