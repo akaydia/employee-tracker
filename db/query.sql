@@ -1,4 +1,4 @@
--- View All employees with their first name, last name, role title, department name, and manager's first and last name (if applicable)
+-- Query 3: All employees with their first name, last name, role title, department name, and manager's first and last name (if applicable)
 SELECT 
   e.id,
   e.first_name,

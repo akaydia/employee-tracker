@@ -17,8 +17,7 @@
   },
   "homepage": "https://github.com/akaydia/employee-tracker#readme",
   "dependencies": {
-    "dotenv": "^16.0.3",
-    "inquirer": "^8.2.4",
+    "inquirer": "^9.1.4",
     "mysql2": "^3.1.2"
   }
 }

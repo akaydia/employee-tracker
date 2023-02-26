@@ -3,20 +3,20 @@ INSERT INTO department (name)
 VALUES
   ('Sales'),
   ('Engineering'),
-  ('Finance'),
-  ('Legal');
-  
+  ('Marketing'),
+  ('HR');
+
 -- Insert roles
 INSERT INTO role (title, salary, department_id)
 VALUES
-  ('Sales Lead', 100000, 1),
-  ('Salesperson', 80000, 1),
-  ('Lead Engineer', 150000, 2),
-  ('Software Engineer', 120000, 2),
-  ('Account Manager', 160000, 3),
-  ('Accountant', 125000, 3),
-  ('Legal Team Lead', 250000, 4),
-  ('Lawyer', 190000, 4);
+  ('Sales Manager', 100000, 1),
+  ('Sales Representative', 50000, 1),
+  ('Software Engineer', 90000, 2),
+  ('QA Engineer', 80000, 2),
+  ('Marketing Manager', 110000, 3),
+  ('Marketing Coordinator', 60000, 3),
+  ('HR Manager', 95000, 4),
+  ('HR Representative', 55000, 4);
 
 -- Insert employees
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
