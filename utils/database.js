@@ -23,7 +23,7 @@ function end() {
 }
 
 function viewDepartments() {
-  db.query('SELECT * FROM departments', function(err, results) {
+  db.query('SELECT * FROM department', function(err, results) {
     if (err) throw err;
     console.table(results);
     promptUser();
@@ -32,9 +32,9 @@ function viewDepartments() {
 
 function viewRoles() {
   db.query(`
-    SELECT roles.id, roles.title, departments.name AS department, role.salary 
+    SELECT role.id, role.title, department.name AS department, role.salary 
     FROM role 
-    INNER JOIN departments ON roles.departments_id = departments.id
+    INNER JOIN department ON role.department_id = department.id
   `, function(err, results) {
     if (err) throw err;
     console.table(results);
@@ -48,14 +48,14 @@ function viewEmployees() {
       e.id, 
       e.first_name, 
       e.last_name, 
-      roles.title AS job_title, 
-      departments.name AS department, 
-      roles.salary, 
+      role.title AS job_title, 
+      department.name AS department, 
+      role.salary, 
       CONCAT(m.first_name, ' ', m.last_name) AS manager_name 
-    FROM employees e 
-    LEFT JOIN roles ON e.role_id = roles.id 
-    LEFT JOIN departments ON roles.departments_id = departments.id 
-    LEFT JOIN employees m ON e.manager_id = m.id
+    FROM employee e 
+    LEFT JOIN role ON e.role_id = role.id 
+    LEFT JOIN department ON role.department_id = department.id 
+    LEFT JOIN employee m ON e.manager_id = m.id
   `, function(err, results) {
     if (err) throw err;
     console.table(results);
@@ -71,7 +71,7 @@ function addDepartment() {
       message: "What is the name of the department you'd like to add?",
     })
     .then((answer) => {
-      const query = `INSERT INTO departments (name) VALUES (?)`;
+      const query = `INSERT INTO department (name) VALUES (?)`;
       db.query(query, [answer.name], function(err, result) {
         if (err) throw err;
         console.log(`${answer.name} department added successfully!`);
@@ -81,7 +81,7 @@ function addDepartment() {
 }
 
 function addRole() {
-  db.query('SELECT * FROM departments', function(err, departments) {
+  db.query('SELECT * FROM department', function(err, department) {
     if (err) throw err;
 
     inquirer
@@ -100,10 +100,10 @@ function addRole() {
           type: 'list',
           name: 'department',
           message: "Which department does this role belong to?",
-          choices: departments.map((department) => {
+          choices: department.map((department) => {
             return {
-              name: departments.name,
-              value: departments.id,
+              name: department.name,
+              value: department.id,
             };
           }),
         },
@@ -123,10 +123,10 @@ function addRole() {
   });
 }
 
-function addEmployee(callback) {
-  db.query('SELECT * FROM roles', function(err, roles) {
+function addEmployee() {
+  db.query('SELECT * FROM role', function(err, roles) {
     if (err) throw err;
-    db.query('SELECT * FROM employees', function(err, employees) {
+    db.query('SELECT * FROM employee', function(err, employees) {
       if (err) throw err;
 
       inquirer.prompt([
@@ -177,12 +177,11 @@ function addEmployee(callback) {
             return;
           }
           console.log('Employee added to the database.');
-          callback();
         }); // db.query INSERT INTO employee 
       }); // .then
     }); // db.query('SELECT * FROM employee', function(err, employees)
   }); // db.query('SELECT * FROM role', function(err, roles)
-} // addEmployee(callback)
+} // addEmployee
 
 module.exports = {
   db,
