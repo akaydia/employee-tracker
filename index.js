@@ -44,3 +44,5 @@ function run() {
       }) // then()
       .catch(err => console.log(err));
   } // run()
+
+run(); // start the prompts
