@@ -15,7 +15,6 @@ function viewDepartments() {
     console.table(results);
     run();
   });
-  
 }
 
 function viewRoles() {
@@ -56,6 +55,149 @@ function viewEmployees() {
     }
   );
 }
+
+
+function viewEmployeesByManager() {
+  // Query the database to retrieve a list of managers
+  const managerQuery = `
+    SELECT DISTINCT e.manager_id, CONCAT(m.first_name, ' ', m.last_name) AS manager
+    FROM employee AS e
+    JOIN employee AS m ON e.manager_id = m.id
+    ORDER BY manager
+  `;
+  db.query(managerQuery, (error, managers) => {
+    if (error) {
+      console.error(error);
+      return;
+    }
+    // Display the list of managers to the user and prompt them to select one
+    console.table(managers);
+    const managerChoices = managers.map((row) => ({
+      name: row.manager,
+      value: row.manager_id,
+    }));
+    inquirer
+      .prompt([
+        {
+          type: 'list',
+          name: 'managerId',
+          message: 'Select a manager to view their employees:',
+          choices: managerChoices,
+        },
+      ])
+      .then((answers) => {
+        const { managerId } = answers;
+        // Query the database to retrieve employees by manager ID
+        const query = `
+          SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department
+          FROM employee AS e
+          JOIN role AS r ON e.role_id = r.id
+          JOIN department AS d ON r.department_id = d.id
+          WHERE e.manager_id = ?
+        `;
+        const values = [managerId];
+        db.query(query, values, (error, results) => {
+          if (error) {
+            console.error(error);
+            return;
+          }
+          console.table(results);
+        }); // db.query(results)
+        run();
+      }); // .then()
+  }); // db.query(find managers)
+}; // viewEmployeesByManager()
+
+function viewEmployeesByDepartment() {
+  db.query(`SELECT id, name FROM department`, function (err, departments) {
+    if (err) throw err;
+
+    // Prompt the user to select a department from the list
+    const choices = departments.map((department) => ({
+      name: department.name,
+      value: department.id,
+    }));
+    inquirer
+      .prompt([
+        {
+          type: "list",
+          message: "Which department would you like to view?",
+          name: "department_id",
+          choices: choices,
+        },
+      ])
+      .then(function (answers) {
+        const departmentId = answers.department_id;
+
+        // Query the database to get employees in the selected department
+        db.query(
+          `
+          SELECT d.name AS department, e.first_name, e.last_name, r.title AS role
+          FROM department d
+          JOIN role r ON r.department_id = d.id
+          JOIN employee e ON e.role_id = r.id
+          WHERE d.id = ?
+          ORDER BY d.name, e.last_name, e.first_name;
+          `,
+          [departmentId],
+          function (err, results) {
+            if (err) throw err;
+            console.table(results);
+            run();
+          } 
+        ); // db.query(result)
+      }); // .then()
+  }); // db.query(departments)
+} // viewEmployeesByDepartment()
+
+function viewDepartmentBudget() {
+  const departmentQuery = `
+    SELECT id, name
+    FROM department
+  `;
+  db.query(departmentQuery, (error, departments) => {
+    if (error) {
+      console.error(error);
+      return;
+    }
+    // Display the list of departments to the user and prompt them to select one
+    console.table(departments);
+    const departmentChoices = departments.map((row) => ({
+      name: row.name,
+      value: row.id,
+    }));
+    inquirer
+      .prompt([
+        {
+          type: 'list',
+          name: 'departmentId',
+          message: 'Select a department to view its budget:',
+          choices: departmentChoices,
+        },
+      ])
+      .then((answers) => {
+        const { departmentId } = answers;
+        // Query the database to retrieve the total utilized budget of the selected department
+        const query = `
+          SELECT d.name AS department, SUM(r.salary) AS utilized_budget
+          FROM department AS d
+          JOIN role AS r ON d.id = r.department_id
+          JOIN employee AS e ON r.id = e.role_id
+          WHERE d.id = ?
+          GROUP BY d.name
+        `;
+        const values = [departmentId];
+        db.query(query, values, (error, results) => {
+          if (error) {
+            console.error(error);
+            return;
+          }
+          console.table(results);
+          run();
+        }); // db.query(results)
+      }); // .then()
+  }); // db.query(find departments)
+}; // viewDepartmentBudget()
 
 function addDepartment() {
   inquirer
@@ -193,10 +335,9 @@ function addEmployee() {
 
 function run() {
   promptUser()
-    .then(answer => {
+    .then((answer) => {
       switch (answer.action) {
         case 'View all departments':
-          console.log('View all departments');
           viewDepartments();
           break;
         case 'View all roles':
@@ -204,6 +345,15 @@ function run() {
           break;
         case 'View all employees':
           viewEmployees();
+          break;
+        case 'View employees by manager':
+          viewEmployeesByManager();
+          break;
+        case 'View employees by department':
+          viewEmployeesByDepartment();
+          break;
+        case 'View total utilized budget of a department':
+          viewDepartmentBudget();
           break;
         case 'Add a department':
           addDepartment();
@@ -214,16 +364,14 @@ function run() {
         case 'Add an employee':
           addEmployee();
           break;
-        case 'Update an employee role':
-          updateEmployeeRole();
-          break;
         case 'Exit':
           console.log('Goodbye!');
           return;
-        default: console.log('Invalid action: ' + answer.action);
+        default:
+          console.log('Invalid action: ' + answer.action);
       } // switch()
     }) // then()
-    .catch(err => console.log(err));
-  } // run()
+    .catch((err) => console.log(err));
+} // run()
 
 module.exports = run;

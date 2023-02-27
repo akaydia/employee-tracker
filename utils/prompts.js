@@ -10,10 +10,12 @@ function promptUser() {
         'View all departments',
         'View all roles',
         'View all employees',
+        'View employees by manager',
+        'View employees by department',
+        'View total utilized budget of a department',
         'Add a department',
         'Add a role',
         'Add an employee',
-        'Update an employee role',
         'Exit'
       ]
     }
